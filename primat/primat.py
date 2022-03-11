@@ -18,20 +18,20 @@ MinResult = namedtuple("MinResult", ["x", "calls", "steps"])
 
 
 class Minimizer:
-    def __init__(self, f, a, b, eps, max_steps=0):
+    def __init__(self, f, a, b, eps, max_calls=0):
         self.cf = CountingFunc(f)
         self.f = cache(self.cf)
         self.a = a
         self.b = b
         self.eps = eps
-        self.max_steps = max_steps or inf
+        self.max_calls = max_calls or inf
 
     def next_step(self):
         raise NotImplementedError
 
     def minimize(self):
         steps = 0
-        while self.cf.n < self.max_steps and self.b - self.a >= self.eps * 2:
+        while self.cf.n < self.max_calls and self.b - self.a >= self.eps * 2:
             steps += 1
             self.next_step()
         print(self.__class__.__name__, self.b - self.a)
@@ -80,10 +80,10 @@ def fib(n):
 class FibMinimizer(GoldenMinimizer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if isinf(self.max_steps):
+        if isinf(self.max_calls):
             n = next(k for k in count() if self.b - self.a < self.eps * fib(k + 2))
         else:
-            n = self.max_steps
+            n = self.max_calls
         w = (self.b - self.a) * fib(n) / fib(n + 1)
         self.x1 = self.b - w
         self.x2 = self.a + w
