@@ -14,7 +14,7 @@ class CountingFunc:
         return self.f(*args, **kwargs)
 
 
-MinResult = namedtuple("MinResult", ["x", "calls", "steps"])
+MinResult = namedtuple("MinResult", ["x", "dx", "calls", "steps"])
 
 
 class Minimizer:
@@ -26,16 +26,15 @@ class Minimizer:
         self.eps = eps
         self.max_calls = max_calls or inf
 
-    def next_step(self):
+    def do_step(self):
         raise NotImplementedError
 
     def minimize(self):
         steps = 0
         while self.cf.n < self.max_calls and self.b - self.a >= self.eps * 2:
             steps += 1
-            self.next_step()
-        print(self.__class__.__name__, self.b - self.a)
-        return MinResult(x=(self.a + self.b) / 2, calls=self.cf.n, steps=steps)
+            self.do_step()
+        return MinResult(x=(self.a + self.b) / 2, dx=(self.b - self.a) / 2, calls=self.cf.n, steps=steps)
 
 
 class DihotMinimizer(Minimizer):
@@ -43,13 +42,18 @@ class DihotMinimizer(Minimizer):
         super().__init__(*args, **kwargs)
         self.delta = self.eps * delta_mod
 
-    def next_step(self):
-        mid = (self.a + self.b) / 2
-        x1, x2 = mid - self.delta, mid + self.delta
-        if self.f(x1) < self.f(x2):
-            self.b = x2
+    @staticmethod
+    def next_step(f, delta, a, b):
+        mid = (a + b) / 2
+        x1, x2 = mid - delta, mid + delta
+        if f(x1) < f(x2):
+            b = x2
         else:
-            self.a = x1
+            a = x1
+        return a, b
+
+    def do_step(self):
+        self.a, self.b = self.next_step(self.f, self.delta, self.a, self.b)
 
 
 class GoldenMinimizer(Minimizer):
@@ -61,13 +65,18 @@ class GoldenMinimizer(Minimizer):
         self.x1 = self.a + w
         self.x2 = self.b - w
 
-    def next_step(self):
-        if self.f(self.x1) < self.f(self.x2):
-            self.b, self.x2 = self.x2, self.x1
-            self.x1 = self.a + self.b - self.x2
+    @staticmethod
+    def next_step(f, a, b, x1, x2):
+        if f(x1) < f(x2):
+            b, x2 = x2, x1
+            x1 = a + b - x2
         else:
-            self.a, self.x1 = self.x1, self.x2
-            self.x2 = self.a + self.b - self.x1
+            a, x1 = x1, x2
+            x2 = a + b - x1
+        return a, b, x1, x2
+
+    def do_step(self):
+        self.a, self.b, self.x1, self.x2 = self.next_step(self.f, self.a, self.b, self.x1, self.x2)
 
 
 @cache
@@ -87,3 +96,82 @@ class FibMinimizer(GoldenMinimizer):
         w = (self.b - self.a) * fib(n) / fib(n + 1)
         self.x1 = self.b - w
         self.x2 = self.a + w
+
+
+class ParabolaMinimizer(Minimizer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.x2 = (self.a + self.b) / 2
+
+    @staticmethod
+    def next_step(f, a, x2, b):
+        u = x2 - ((x2 - a) ** 2 * (f(x2) - f(b)) - (x2 - b) ** 2 * (f(x2) - f(a))) / (
+            2 * ((x2 - a) * (f(x2) - f(b)) - (x2 - b) * (f(x2) - f(a)))
+        )
+        if f(x2) < f(u):
+            if x2 < u:
+                b = u
+            else:
+                a = u
+        else:
+            if x2 < u:
+                a, x2 = x2, u
+            else:
+                x2, b = u, x2
+        return a, x2, b
+
+    def do_step(self):
+        self.a, self.x2, self.b = self.next_step(self.f, self.a, self.x2, self.b)
+
+
+class BrentMinimizer(Minimizer):
+    k = (3 - sqrt(5)) / 2
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.x = self.w = self.v = (self.a + self.b) / 2
+        self.d = self.e = self.b - self.a
+
+    @staticmethod
+    def next_step(f, x, w, v, d, e, a, b, k, eps):
+        g, e = e, d
+        u = None
+        if len({x, w, v}) == 3:
+            x1, x2, x3 = sorted([x, w, v])
+            u = x2 - ((x2 - x1) ** 2 * (f(x2) - f(x3)) - (x2 - x3) ** 2 * (f(x2) - f(x1))) / (
+                2 * ((x2 - x1) * (f(x2) - f(x3)) - (x2 - x3) * (f(x2) - f(x1)))
+            )
+            if a + eps <= u <= b - eps and abs(u - x) < g / 2:
+                d = abs(u - x)
+            else:
+                u = None
+        if u is None:
+            if x < (b - a) / 2:
+                u = x + k * (b - x)
+                d = b - x
+            else:
+                u = x - k * (x - a)
+                d = x - a
+        if abs(u - x) < eps:
+            u = x + copysign(eps, u - x)
+        if f(u) <= f(x):
+            if u >= x:
+                a = x
+            else:
+                b = x
+            v, w, x = w, x, u
+        else:
+            if u >= x:
+                b = u
+            else:
+                a = u
+            if f(u) <= f(w) or w == x:
+                v, w = w, u
+            elif f(u) <= f(v):
+                v = u
+        return a, b, x, w, v, d, e
+
+    def do_step(self):
+        self.a, self.b, self.x, self.w, self.v, self.d, self.e = self.next_step(
+            self.f, self.x, self.w, self.v, self.d, self.e, self.a, self.b, self.k, self.eps
+        )
