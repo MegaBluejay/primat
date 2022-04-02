@@ -1,0 +1,167 @@
+#+startup: latexpreview
+#+include: "~/org/header.org"
+
+#+begin_center
+*Лабораторная 1*
+
+Моисеев M32001, Муров M32011
+
+Вариант 3
+#+end_center
+
+#+latex: \clearpage
+
+** Постановка задачи
+
+Исследовать функцию $y(x) = \sin(x)-\ln x^2 - 1$ на промежутке, где она унимодальна. Найти точку минимума различными методами
+одномерного поиска нулевого порядка, сравнить результаты.
+
+В качестве промежутка берем $[8, 13.5]$, а точность $1\mathrm{e}{-5}$
+
+[[./graph.png]]
+
+** Вычислительная схема
+
+Все методы постепенно суживают отрезок $[a_0, b_0]$, используя заданное число вычислений значений функции.
+
+Последний отрезок и является ответом.
+
+Также задана точность $\varepsilon$
+
+*** Метод дихотомии
+
+#+begin_export latex
+\begin{minted}[escapeinside=<>,mathescape=true]{text}
+Выбираем <$\delta < \varepsilon / 2$>
+while (сужаем)
+    <$x_{1,2} = (a+b)/2 \mp \delta$>
+    if (<$f(x_1) < f(x_2)$>)
+        <$b = x_2$>
+    else
+        <$a = x_1$>
+\end{minted}
+#+end_export
+
+*** Метод золотого сечения
+
+#+begin_export latex
+\begin{minted}[escapeinside=<>,mathescape=true]{text}
+<$K = (3-\sqrt{5})/2$>
+<$w = K (b - a)$>
+<$x_1 = a + w, x_2 = b - w$>
+while (сужаем)
+    if (<$f(x_1) < f(x_2)$>)
+        <$b = x_2$>
+        <$x_2 = x_1$>
+        <$x_1 = a + b - x_1$>
+    else
+        <$a = x_1$>
+        <$x_1 = x_2$>
+        <$x_2 = a + b - x_2$>
+\end{minted}
+#+end_export
+
+*** Метод Фибоначчи
+
+
+#+begin_export latex
+\begin{minted}[escapeinside=<>,mathescape=true]{text}
+<$F(k)$> - <$k$>-е число фибоначчи
+<$n$> - число разрешенных вычислений фнукции.
+В качесте <$K$> берем <$1 - \frac{F(n)}{F(n+1)}$>
+Далее алгоритм аналогичен методу золотого сечения
+\end{minted}
+#+end_export
+
+*** Метод парабол
+
+#+begin_export latex
+\begin{minted}[escapeinside=<>,mathescape=true]{text}
+<$x_2 = (a + b)/2$>
+while (сужаем)
+    <$u = x_2 - \frac{(x_2-a)^2(f(x_2)-f(b)) - (x_2-b)^2(f(x_2)-f(a))}{2[(x_2-a)(f(x_2)-f(b))-(x_2-b)(f(x_2)-f(a))]}$>
+    if (<$f(x_2) < f(u)$>)
+        if (<$x_2 < u$>)
+            <$b = u$>
+        else
+            <$a = u$>
+    else
+        <$x_2 = u$>
+        if (<$x_2 < u$>)
+            <$a = x_2$>
+        else
+            <$b = x_2$>
+\end{minted}
+#+end_export
+
+*** Метод Брента
+
+#+begin_export latex
+\begin{minted}[escapeinside=<>,mathescape=true]{text}
+<$K = (3-\sqrt{5})/2$>
+<$x = w = v = (a + b) / 2$>
+<$d = e = (b-a) / 2$>
+while (сужаем)
+    <$g = e$>
+    <$e = d$>
+    if (<$x, w, v$> разные и <$f(x), f(w), f(v)$> разные)
+        вычисляем <$u$> как в методе парабол из <$x, w, v$>
+    if (<$ a + \varepsilon \leq u \leq b - \varepsilon$> и <$|u-x| < g / 2$>
+        принимаем <$u$>
+        <$d = |u-x|$>
+    else if (<$x < (b-a)/2$>)
+        <$d = b-x$>
+        <$u = x + K d$>
+    else
+        <$d = x-a$>
+        <$u = x - K d$>
+    if (<$|u-x| < \varepsilon$>)
+        <$u = x + sign(u-x) \varepsilon$>
+    if (<$f(u) < f(x)$>)
+        if (<$u \geq x$>)
+            <$a = x$>
+        else
+            <$b = x$>
+        <$v = w$>
+        <$w = x$>
+        <$x = u$>
+    else
+        if (<$u \geq x$>)
+            <$b = u$>
+        else
+            <$a = u$>
+        if (<$f(u) \leq f(w)$> или <$w = x$>)
+            <$v = w$>
+            <$w = u$>
+        else if (<$f(u) \leq f(v)$>)
+            <$v = u$>
+\end{minted}
+#+end_export
+
+** Результаты
+
+#+ATTR_LATEX: :environment longtable
+#+INCLUDE: "../primat/res.org"
+
+Метод Дихотомии достигает необходимой точности за 38 вызовов функции (19 шагов)
+
+Методы золотого сечения и фибоначчи за 28 вызовов (27 шагов)
+
+Метод парабол за 12 вызовов (9 шагов)
+
+Метод Брента за 11 вызовов (10 шагов)
+
+** Выводы
+
+Поскольку отрезок небольшой, раница между методами золотого сечения и фибоначчи незначительна.
+Также хорошо работает метод парабол, поскольку функция похожа на параболу, и метод Брента почти сводится к нему.
+
+** Код
+
+*** Алгоритмы
+
+#+INCLUDE: "../primat/primat.py" src python
+
+*** Работа
+
+#+INCLUDE: "../primat/test.py" src python
