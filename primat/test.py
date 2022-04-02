@@ -1,5 +1,5 @@
 from math import sin
-from .primat import *
+from primat.primat import *
 
 f = lambda x: sin(x) - log(x**2) - 1
 
