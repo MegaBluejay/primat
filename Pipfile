@@ -7,6 +7,7 @@ name = "pypi"
 numpy = "*"
 ipython = "*"
 scipy = "*"
+pandas = "*"
 
 [dev-packages]
 black = "*"
