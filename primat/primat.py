@@ -136,7 +136,7 @@ class BrentMinimizer(Minimizer):
     def next_step(f, x, w, v, d, e, a, b, k, eps):
         g, e = e, d
         u = None
-        if len({x, w, v}) == 3:
+        if len({x, w, v}) == 3 and len(set(map(f, [x, w, v]))):
             x1, x2, x3 = sorted([x, w, v])
             u = x2 - ((x2 - x1) ** 2 * (f(x2) - f(x3)) - (x2 - x3) ** 2 * (f(x2) - f(x1))) / (
                 2 * ((x2 - x1) * (f(x2) - f(x3)) - (x2 - x3) * (f(x2) - f(x1)))
