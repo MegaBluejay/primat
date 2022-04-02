@@ -1,4 +1,3 @@
-from math import sin
 from primat import *
 from org_table import table
 import pandas as pd
