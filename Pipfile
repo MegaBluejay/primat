@@ -8,6 +8,8 @@ numpy = "*"
 ipython = "*"
 scipy = "*"
 pandas = "*"
+toolz = "*"
+matplotlib = "*"
 
 [dev-packages]
 black = "*"
