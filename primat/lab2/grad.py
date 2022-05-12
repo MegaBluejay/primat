@@ -1,9 +1,19 @@
-from functools import partial
+from functools import partial, cache
 from itertools import count
 
 import numpy as np
-from scipy.optimize import minimize_scalar
+from scipy.optimize import minimize_scalar, bracket, OptimizeResult
 from toolz import comp
+
+
+_epsilon = np.sqrt(np.finfo(float).eps)
+
+
+@cache
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n - 1) + fibonacci(n - 2)
 
 
 def norm_sq(a):
@@ -29,6 +39,47 @@ def break_h(h0, eps, lam):
         return h
 
     return get_h
+
+
+def fib_method(func, brack=None, args=(), xtol=_epsilon, **unknown):
+    tol = xtol
+    f = lambda x: func(*(x,) + args)
+    if brack is None:
+        xa, xb, xc, fa, fb, fc, funcalls = bracket(func, args=args)
+    elif len(brack) == 2:
+        xa, xb, xc, fa, fb, fc, funcalls = bracket(func, *brack, args=args)
+    elif len(brack) == 3:
+        xa, xb, xc = brack
+        xa, xc = sorted([xa, xc])
+        if not (xa < xb < xc):
+            raise ValueError("Not a bracketing interval.")
+        fa, fb, fc = map(f, [xa, xb, xc])
+        if not (fb < fa and fb < fc):
+            raise ValueError("Not a bracketing interval.")
+        funcalls = 3
+    else:
+        raise ValueError("Not a bracketing interval.")
+
+    n = next(i for i in count() if fibonacci(i) * tol > xc - xa)
+    w = xc - xa
+    x1 = xa + w * fibonacci(n) / fibonacci(n + 2)
+    x2 = xa + w * fibonacci(n + 1) / fibonacci(n + 2)
+    for i in range(n):
+        w = xc - xa
+        if f(x1) < f(x2):
+            xc, x1, x2 = x2, xa + fibonacci(n - i) / fibonacci(n - i + 2) * w, x1
+        else:
+            xa, x1, x2 = x1, x2, xa + fibonacci(n - i + 1) / fibonacci(n - i + 2) * w
+    res = (xa + xc) / 2
+    funcalls += n
+    return OptimizeResult(
+        fun=f(res),
+        nfev=funcalls,
+        x=res,
+        nit=n,
+        success=True,
+        message="Success",
+    )
 
 
 def steepest_h(method):
@@ -75,4 +126,5 @@ __all__ = (
     "stop_f",
     "grad",
     "norm_sq",
+    "fib_method",
 )
