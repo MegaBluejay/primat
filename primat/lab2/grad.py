@@ -60,16 +60,17 @@ def fib_method(func, brack=None, args=(), xtol=_epsilon, **unknown):
     else:
         raise ValueError("Not a bracketing interval.")
 
+    xa, xc = sorted([xa, xc])
     n = next(i for i in count() if fibonacci(i) * tol > xc - xa)
-    w = xc - xa
-    x1 = xa + w * fibonacci(n) / fibonacci(n + 2)
-    x2 = xa + w * fibonacci(n + 1) / fibonacci(n + 2)
+    w = (xc - xa) * fibonacci(n) / fibonacci(n + 2)
+    x1, x2 = xa + w, xc - w
     for i in range(n):
-        w = xc - xa
         if f(x1) < f(x2):
-            xc, x1, x2 = x2, xa + fibonacci(n - i) / fibonacci(n - i + 2) * w, x1
+            x2, xc = x1, x2
+            x1 = xa + xc - x2
         else:
-            xa, x1, x2 = x1, x2, xa + fibonacci(n - i + 1) / fibonacci(n - i + 2) * w
+            xa, x1 = x1, x2
+            x2 = xa + xc - x1
     res = (xa + xc) / 2
     funcalls += n
     return OptimizeResult(
