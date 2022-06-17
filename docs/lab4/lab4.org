@@ -1,0 +1,151 @@
+#+startup: latexpreview
+#+include: "~/org/header.org"
+#+latex_header: \usepackage{tikz}
+
+#+begin_center
+*Лабораторная 4*
+
+Моисеев M32001, Муров M32011
+
+Вариант 3
+#+end_center
+
+#+latex: \clearpage
+
+** Условия
+
+- $\lambda = 1.7$
+- $\mu = 3.6$
+- $r = 2$
+- $m = 1$
+
+** Возможные состояния системы
+
+- $S_0$ - в системе бревен нет
+- $S_1$ - 1 машина занята
+- $S_2$ - 2 машины заняты
+- $S_3$ - 2 машины заняты, одно бревно в очереди
+
+** Граф состояний
+
+\begin{tikzpicture}[node distance={20mm}, thick, main/.style = {draw, circle}]
+\node[main] (0) {$S_0$};
+\node[main] (1) [right of=0] {$S_1$};
+\node[main] (2) [right of=1] {$S_2$};
+\node[main] (3) [right of=2] {$S_3$};
+\draw[->] (0) to [out=45, in=135, looseness=1.5] node[midway, above] {$\lambda$} (1);
+\draw[->] (1) to [out=45, in=135, looseness=1.5] node[midway, above] {$\lambda$} (2);
+\draw[->] (2) to [out=45, in=135, looseness=1.5] node[midway, above] {$\lambda$} (3);
+\draw[->] (1) to [out=-135, in=-45, looseness=1.5] node[midway, below] {$\mu$} (0);
+\draw[->] (2) to [out=-135, in=-45, looseness=1.5] node[midway, below] {$2 \mu$} (1);
+\draw[->] (3) to [out=-135, in=-45, looseness=1.5] node[midway, below] {$2 \mu$} (2);
+\end{tikzpicture}
+
+** Система уравнений стационарных вероятностей
+
+\begin{cases}
+\mu p_1 - \lambda p_0 = 0 \\
+2 \mu p_2 + \lambda p_0 - (\lambda + \mu) p_1 = 0 \\
+2 \mu p_3 + \lambda p_1 - (\lambda + 2 \mu) p_2 = 0 \\
+\lambda p_2 - 2 \mu p_3 = 0 \\
+p_0 + p_1 + p_2 + p_3 = 1
+\end{cases}
+
+#+begin_src python :exports results :cache yes
+import numpy as np
+
+lam = 1.7
+mu = 3.6
+
+a = np.array([
+    [-lam, mu, 0, 0],
+    [lam, -(lam + mu), 2*mu, 0],
+    [0, lam, -(lam + 2*mu), 2*mu],
+    [1, 1, 1, 1],
+])
+b = np.array([0, 0, 0, 1])
+
+return np.linalg.solve(a, b)
+#+end_src
+
+#+RESULTS:
+| 0.62110073 | 0.29329757 | 0.06925081 | 0.01635089 |
+
+** Стацинарные характеристики
+
+*** вероятность, что занято $z$ машин
+- $P(z=0) = p_0 = 0.6211$
+- $P(z = 1) = p_1 = 0.2933$
+- $P(z=2) = p_2 + p_3 = 0.0693 + 0.0164 = 0.0856$
+
+*** вероятность, что все машины заняты и $w$ бревен в очереди
+- $P(w=0) = p_2 = 0.0693$
+- $P(w=1) = p3 = 0.0164$
+
+*** среднее число занятых машин
+$1 \cdot P(z=1) + 2 \cdot P(z=2) = 0.4645$
+
+*** среднее число свободных машин
+$2 - 0.4645 = 1.5355$
+
+*** коэффициент загрузки
+$\frac{0.4645}{2} = 0.2323$
+
+*** коэффициент простоя
+$1 - 0.2323 = 0.7677$
+
+*** среднее число бревен в очереди
+$1 \cdot p_3 = 0.0164$
+
+** Нестационарный режим
+
+\begin{cases}
+p_0'(t) = \mu p_1(t) - \lambda p_0(t) \\
+p_1'(t) = 2 \mu p_2(t) + \lambda p_0(t) - (\lambda + \mu) p_1(t) \\
+p_2'(t) = 2 \mu p_3(t) + \lambda p_1(t) - (\lambda + 2 \mu) p_2(t) \\
+p_3'(t) = \lambda p_2(t) - 2 \mu p_3(t)
+\end{cases}
+
+\begin{cases}
+p_0 = 0.6211 + 0.0075 e^{-12.8286 t} + 0.0973 e^{-6.8543 t} + 0.2741 e^{-3.4172 t} \\
+p_1 = 0.2933 - 0.0233 e^{-12.8286 t} - 0.1393 e^{-6.8543 t} - 0.1307 e^{-3.4172 t} \\
+p_2 = 0.0693 + 0.0226 e^{-12.8286 t} + 0.0071 e^{-6.8543 t} - 0.0989 e^{-3.4172 t} \\
+p_3 = 0.0164 - 0.0068 e^{-12.8286 t} + 0.0349 e^{-6.8543 t} - 0.0444 e^{-3.4172 t}
+\end{cases}
+
+#+begin_src python :session sess :exports none
+import numpy as np
+p = [
+    lambda t: 0.621100731180505 + 0.0075267055205214*np.exp(-12.8285546803949*t) + 0.0972915174458653*np.exp(-6.85428169796493*t) + 0.274081045853108*np.exp(-3.41716362164016*t),
+     lambda t: 0.293297567501905 - 0.0232670427634313*np.exp(-12.8285546803949*t) -0.139296635482905*np.exp(-6.85428169796493*t) - 0.130733889255568*np.exp(-3.41716362164016*t),
+    lambda t: 0.0692508145490609 + 0.0225516394875962*np.exp(-12.8285546803949*t) + 0.00709869881405562*np.exp(-6.85428169796493*t) - 0.0989011528507129*np.exp(-3.41716362164016*t),
+    lambda t: 0.0163508867685283 - 0.00681130224468633*np.exp(-12.8285546803949*t) + 0.0349064192229843*np.exp(-6.85428169796493*t) - 0.0444460037468263*np.exp(-3.41716362164016*t)
+]
+#+end_src
+
+#+RESULTS:
+
+#+latex: \clearpage
+
+** Динамический коэффициент нагрузки
+
+$q(t) = \frac{p_1(t) + 2 (p_2(t) + p_3(t))}{2}$
+
+#+begin_src python :session sess :exports results :results file
+import matplotlib.pyplot as plt
+
+t = np.linspace(0, 10, 100)
+q = (p[1](t) + 2 * (p[2](t) + p[3](t))) / 2
+
+fname = 'qplot.png'
+plt.plot(t, q)
+plt.savefig(fname)
+fname
+#+end_src
+
+#+RESULTS:
+[[file:]]
+
+** Выводы
+
+Машины много простаивают. Стоит увеличить бюджет рекламы, привлечь больше клиентов.
