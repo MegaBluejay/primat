@@ -1,0 +1,42 @@
+#+startup: latexpreview
+#+include: "~/org/header.org"
+
+#+begin_center
+*Лабораторная 2*
+
+Моисеев M32001, Муров M32011
+
+Вариант 3
+#+end_center
+
+#+latex: \clearpage
+
+
+** Траектории
+
+Функция: $f(x,y) = 10 x^2 + y^2$
+
+Начальное приближение: $(10, 10)$
+
+Искомая точность: $10^{-5}$ в значении
+
+#+CAPTION: Постоянная 0.1. 35 итераций
+[[../../primat/lab2/const_0.1.png]]
+
+#+CAPTION: Постоянная 0.01. 320 итераций
+[[../../primat/lab2/const_0.01.png]]
+
+#+CAPTION: Дробление 1 0.95 0.95. 95 итераций
+[[../../primat/lab2/break_1_0.95_0.95.png]]
+
+#+CAPTION: Дробление 1 0.1 0.95. 42 итерации
+[[../../primat/lab2/break_1_0.1_0.95.png]]
+
+#+CAPTION: Дробление 1 0.1 0.1. 72 итерации
+[[../../primat/lab2/break_1_0.1_0.1.png]]
+
+#+CAPTION: Золотое сечение. 9 итераций
+[[../../primat/lab2/golden.png]]
+
+#+CAPTION: Фибоначчи. 9 итераций
+[[../../primat/lab2/fib.png]]
