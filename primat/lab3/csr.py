@@ -1,11 +1,4 @@
-from itertools import tee
 from bisect import bisect_left
-
-
-def pairwise(it):
-    a, b = tee(iter(it))
-    next(b, None)
-    return zip(a, b)
 
 
 class Csr:
@@ -60,16 +53,3 @@ class Csr:
 
     def __repr__(self):
         return str(self)
-
-
-def gen_l(a: Csr, n):
-    v, c, r = [], [], []
-    for i in range(a.n):
-        r.append(len(v))
-        if i > n:
-            v.append(-a[i, n] / a[n, n])
-            c.append(n)
-        v.append(1)
-        c.append(i)
-    r.append(len(v))
-    return Csr((v, c, r, a.m))
