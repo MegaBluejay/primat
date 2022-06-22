@@ -11,6 +11,7 @@ pandas = "*"
 toolz = "*"
 matplotlib = "*"
 pyqt5 = "*"
+prettytable = "*"
 
 [dev-packages]
 black = "*"
