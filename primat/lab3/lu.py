@@ -34,7 +34,7 @@ def decomp(a: Csr):
         for j in range(i):
             k = bisect_left(rs[j], i)
             if rs[j][k] == i:
-                v.append(vs[j][k])
+                v.append(-vs[j][k])
                 c.append(j)
         v.append(1)
         c.append(i)
