@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
+from functools import partial
 from prettytable import PrettyTable
 
 from grad import *
@@ -43,26 +45,26 @@ def rosenbrock(q):
 
 def drosenbrock(q):
     x, y = q
-    return np.array([-400 * x * (-(x**2) + y) + 2 * x - 2, -200 * (x**2) + 200 * y])
+    return np.array([-400 * x * (-(x ** 2) + y) + 2 * x - 2, -200 * (x ** 2) + 200 * y])
 
 
-# res = np.array(
-#     list(grad(f=rosenbrock, df=drosenbrock, x=np.array([0, 0]), get_h=steepest_h("brent"), stop=stop_f(1e-5))))
-# print(res.shape[0], f"{np.sqrt(norm_sq(res[-1])):e}")
-# print(res[-1])
-# x = np.mgrid[-2:2:100j, -2:2:100j]
-# #z = rosenbrock(np.moveaxis(x, 0, -1))
-# z = np.array(list(map(rosenbrock, x.reshape((-1, 2))))).reshape((100, 100))
-# plt.contour(*x, z)
-# plt.plot(*res.swapaxes(0, 1))
-# plt.show()
-# step_size = [x / 1000 for x in range(1, 100)]
-# step_count = [np.array(list(grad(f=f1, df=df1, x=np.array([10, 10]), get_h=const_h(step), stop=stop_f(1e-5)))).shape[0]
-#               for step in step_size]
-# plt.plot(step_size, step_count)
-# plt.ylabel("к-во итераций")
-# plt.xlabel("длина шага")
-# plt.show()
+res = np.array(
+    list(grad(f=rosenbrock, df=drosenbrock, x=np.array([0, 0]), get_h=steepest_h("brent"), stop=stop_f(1e-5))))
+print(res.shape[0], f"{np.sqrt(norm_sq(res[-1])):e}")
+print(res[-1])
+x = np.mgrid[-2:2:100j, -2:2:100j]
+#z = rosenbrock(np.moveaxis(x, 0, -1))
+z = np.array(list(map(rosenbrock, x.reshape((-1, 2))))).reshape((100, 100))
+plt.contour(*x, z)
+plt.plot(*res.swapaxes(0, 1))
+plt.show()
+step_size = [x / 1000 for x in range(1, 100)]
+step_count = [np.array(list(grad(f=f1, df=df1, x=np.array([10, 10]), get_h=const_h(step), stop=stop_f(1e-5)))).shape[0]
+              for step in step_size]
+plt.plot(step_size, step_count)
+plt.ylabel("к-во итераций")
+plt.xlabel("длина шага")
+plt.show()
 functext = ["10x^2+y^2", "10000x^2+10000y^2", "100000x^2+0.00001y^2"]
 
 funcs = [(f1, df1), (f2, df2), (f3, df3)]
@@ -90,7 +92,8 @@ for point in start_points:
 funcs = [
     [[10, 1], [100, 0.1], [10000, 0.0001]],
     [[1, 1, 1], [1, 100, 10000], [0.01, 1000, 100000]],
-    [[3, 4, 5, 6, 7, 8], [0.1, 1, 10, 100, 1000, 10000], [0.01, 10, 100, 1000, 2000, 20000]],
+    [[1,1,1,1], [1,1,1,100],[1,1,1,10000],[10,1,1,100000]],
+    [[3, 4, 5, 6, 7, 8], [0.01, 10, 100, 1000, 2000, 20000], [1, 2, 5, 10, 2, 1]],
 ]
 pairs = []
 for nfuncs in funcs:
@@ -100,6 +103,9 @@ for nfuncs in funcs:
         t.append(tuple([func, dfunc.tolist()]))
 
     pairs.append(t)
+ks = []
+ns = []
+steps = []
 for h in hs:
     hname, hfunc = h
     print("Method:" + hname)
@@ -114,3 +120,30 @@ for h in hs:
                 list(grad(f=fs(i), df=dfs(i), x=np.array([10 for t in range(sz)]), get_h=hfunc, stop=stop_f(1e-5)))
             )
             print("k=" + str(cond[i]) + " steps=" + str(res.shape[0]))
+            ks.append(cond[i])
+            ns.append(sz)
+            steps.append(res.shape[0])
+# steps = []
+# cond = []
+# start = np.array([10,10,10])
+# def f(x,matrix=None):
+#     return x@matrix@x.T
+# def df(x,matrix=None):
+#     return x@(matrix+matrix.T)
+# for i in range(1):
+#     matrix = np.random.randint(-100, 100, (3, 3))
+#     cond.append(np.linalg.cond(matrix, p="fro"))
+#
+#     res = np.array(
+#         list(grad(f=partial(f, matrix=matrix), df=partial(df, matrix=matrix), x=start, get_h=steepest_h("brent"), stop=stop_f(1e-5)))
+#     )
+#     steps.append(res.shape[0])
+# plt.plot(cond, steps)
+# plt.ylabel("шаги")
+# plt.xlabel("k")
+
+steps = [step/3 for step in steps]
+plt.scatter(ks,ns,steps,alpha=0.5)
+plt.show()
+
+
