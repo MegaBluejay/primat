@@ -45,8 +45,28 @@ class Csr:
     def to_mat(self):
         return [self[i] for i in range(self.n)]
 
-    def __matmul__(self, other):
-        pass
+    def mul_cool(self, other):
+        v, c, r = [], [], []
+        for i in range(self.n):
+            r.append(len(v))
+            for j in range(self.m):
+                ks, es = self.r[i : i + 2]
+                ko, eo = other.r[j : j + 2]
+                res = 0
+                while ks < es and ko < eo:
+                    if self.c[ks] == other.c[ko]:
+                        res += self.v[ks] * other.v[ko]
+                        ks += 1
+                        ko += 1
+                    elif self.c[ks] < other.c[ko]:
+                        ks += 1
+                    else:
+                        ko += 1
+                if res:
+                    v.append(res)
+                    c.append(j)
+        r.append(len(v))
+        return Csr((v, c, r, self.m))
 
     def __str__(self):
         return str((self.v, self.c, self.r))

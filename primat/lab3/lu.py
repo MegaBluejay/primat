@@ -6,7 +6,7 @@ def gen_l(a: Csr, n):
     for i in range(a.n):
         r.append(len(v))
         if i > n:
-            v.append(-a[i, n] / a[n, n])
+            v.append(-a[n, i] / a[n, n])
             c.append(n)
         v.append(1)
         c.append(i)
