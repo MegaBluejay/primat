@@ -33,7 +33,7 @@ class Csr:
     def get_item(self, i, j):
         start, end = self.r[i : i + 2]
         q = bisect_left(self.c, j, start, end)
-        if self.c[q] == j:
+        if q < len(self.c) and self.c[q] == j:
             return self.v[q]
         return 0
 
