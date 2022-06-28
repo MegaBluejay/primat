@@ -4,7 +4,7 @@ from primat.lab2.grad import norm_sq
 
 
 def zeydel(a, b, eps):
-    n = a.shape[0]
+    n = a.n
     xp = np.zeros(b.shape)
     x = b.copy()
     while norm_sq(x - xp) > eps**2:
