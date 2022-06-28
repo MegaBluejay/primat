@@ -1,20 +1,21 @@
 from bisect import bisect_left
 from math import copysign, sqrt, inf
 
-from ..lab3.csr import Csr
+from primat.lab3.csr import Csr
 
 
-def next_jac(a):
-    mq = None
-    mx = -inf
+def non_diag(a):
     for i in range(a.n):
         start, end = a.r[i : i + 2]
         for q in range(start, end):
             if a.c[q] == i:
                 continue
-            if abs(a.v[q]) > mx:
-                mq = q
-    j, k = sorted([bisect_left(a.r, mq), a.c[mq]])
+            yield q, a.v[q]
+
+
+def next_jac(a):
+    q = max(non_diag(a), key=lambda t: abs(t[1]))[0]
+    j, k = sorted([bisect_left(a.r, q), a.c[q]])
     if a[j, j] == a[k, k]:
         sin, cos = 1 / sqrt(2), 1 / sqrt(2)
     else:
@@ -77,6 +78,6 @@ def next_jac(a):
 
 
 def jacobi(a, eps):
-    while abs(max(a.v, key=abs)) >= eps:
+    while abs(max(non_diag(a), key=lambda t: abs(t[1]))[1]) >= eps:
         a = next_jac(a)
     return [a[i, i] for i in range(a.n)]
