@@ -10,15 +10,14 @@ class Csr:
         if isinstance(m, tuple):
             self.v, self.c, self.r, self.m = m
             return
-        self.v, self.c, self.r, self.m = [], [], [], len(m[0])
+        self.v, self.c, self.r, self.m = [], [], [0], len(m[0])
         for i, row in enumerate(m):
-            self.r.append(len(self.v))
             for j, x in enumerate(row):
                 if not x:
                     continue
                 self.v.append(x)
                 self.c.append(j)
-        self.r.append(len(self.v))
+            self.r.append(len(self.v))
 
     @property
     def n(self):
@@ -47,9 +46,8 @@ class Csr:
         return [self[i] for i in range(self.n)]
 
     def mul_cool(self, other):
-        v, c, r = [], [], []
+        v, c, r = [], [], [0]
         for i in range(self.n):
-            r.append(len(v))
             for j in range(self.m):
                 ks, es = self.r[i : i + 2]
                 ko, eo = other.r[j : j + 2]
@@ -66,7 +64,7 @@ class Csr:
                 if res:
                     v.append(res)
                     c.append(j)
-        r.append(len(v))
+            r.append(len(v))
         return Csr((v, c, r, self.m))
 
     def transpose(self):

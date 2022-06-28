@@ -26,9 +26,8 @@ def decomp(a: Csr):
         vs.append(resv)
         rs.append(resr)
         a = a.mul_cool(li)
-    v, c, r = [], [], []
+    v, c, r = [], [], [0]
     for i in range(a.n):
-        r.append(len(v))
         for j in range(i):
             k = bisect_left(rs[j], i)
             if rs[j][k] == i:
@@ -36,5 +35,5 @@ def decomp(a: Csr):
                 c.append(j)
         v.append(1)
         c.append(i)
-    r.append(len(v))
+        r.append(len(v))
     return Csr((v, c, r, a.m)), a
