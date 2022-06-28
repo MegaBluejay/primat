@@ -1,4 +1,5 @@
 from bisect import bisect_left
+from itertools import groupby
 
 
 class Csr:
@@ -67,6 +68,24 @@ class Csr:
                     c.append(j)
         r.append(len(v))
         return Csr((v, c, r, self.m))
+
+    def transpose(self):
+        qs = []
+        for i in range(self.n):
+            start, end = self.r[i:i+2]
+            for vv, j in zip(self.v[start:end], self.c[start:end]):
+                qs.append((j, i, vv))
+        qs.sort()
+        v, c, r = [], [], [0]
+        j = 0
+        for i in range(self.m):
+            while j < len(qs) and qs[j][0] == i:
+                v.append(qs[j][2])
+                c.append(qs[j][1])
+                j += 1
+            r.append(len(v))
+        return Csr((v, c, r, self.n))
+
 
     def __str__(self):
         return str((self.v, self.c, self.r))
