@@ -72,7 +72,7 @@ class Csr:
     def transpose(self):
         qs = []
         for i in range(self.n):
-            start, end = self.r[i:i+2]
+            start, end = self.r[i : i + 2]
             for vv, j in zip(self.v[start:end], self.c[start:end]):
                 qs.append((j, i, vv))
         qs.sort()
@@ -85,7 +85,6 @@ class Csr:
                 j += 1
             r.append(len(v))
         return Csr((v, c, r, self.n))
-
 
     def __str__(self):
         return str((self.v, self.c, self.r))
