@@ -9,9 +9,8 @@ def gilbert(n):
 
 def qq(n, k):
     q = list(range(-4, 1))
-    v, c, r, f = [], [], [], []
+    v, c, r, f = [], [], [0], []
     for i in range(n):
-        r.append(len(v))
         row = list(choices(q, k=n - 1))
         row.insert(i, -sum(row) + 10 ** (-k))
         fv = 0
@@ -22,5 +21,5 @@ def qq(n, k):
             c.append(j)
             fv += w * (j + 1)
         f.append(fv)
-    r.append(len(v))
+        r.append(len(v))
     return Csr((v, c, r)), f
