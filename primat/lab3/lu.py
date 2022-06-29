@@ -40,13 +40,28 @@ def decomp(a: Csr):
 
 
 def solve(l, u, b):
+    u = u.transpose()
     n = l.n
     y = []
     for i in range(n):
-        y.append((b[i] - sum(y[j] * l[i, j] for j in range(i))) / l[i, i])
+        start, end = l.r[i : i + 2]
+        yv = b[i]
+        for v, j in zip(l.v[start:end], l.c[start:end]):
+            if j >= i:
+                break
+            yv -= y[j] * v
+        y.append(yv / l[i, i])
+
     x = []
     for i in range(n):
-        x.append((y[n - i - 1] - sum(x[j] * u[n - j - 1, n - i - 1] for j in range(i))) / u[n - i - 1, n - i - 1])
+        xv = y[n - i - 1]
+        start, end = u.r[n - i - 1 : n - i + 1]
+        for v, j in zip(u.v[start:end][::-1], u.c[start:end][::-1]):
+            if n - j - 1 >= len(x):
+                break
+            xv -= x[n - j - 1] * v
+        x.append(xv / u[n - i - 1, n - i - 1])
+        # x.append((y[n - i - 1] - sum(x[j] * u[n - j - 1, n - i - 1] for j in range(i))) / u[n - i - 1, n - i - 1])
     return x[::-1]
 
 

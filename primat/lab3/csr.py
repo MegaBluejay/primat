@@ -87,7 +87,7 @@ class Csr:
             start, end = self.r[i : i + 2]
             for vv, j in zip(self.v[start:end], self.c[start:end]):
                 qs.append((j, i, vv))
-        return self.from_clist(qs)
+        return self.from_clist(qs, self.n)
 
     def __str__(self):
         return str((self.v, self.c, self.r))
