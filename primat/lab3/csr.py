@@ -19,6 +19,19 @@ class Csr:
                 self.c.append(j)
             self.r.append(len(self.v))
 
+    @classmethod
+    def from_clist(cls, clist, n, m):
+        clist.sort()
+        v, c, r = [], [], [0]
+        j = 0
+        for i in range(n):
+            while j < len(clist) and clist[j][0] == i:
+                v.append(clist[j][2])
+                c.append(clist[j][1])
+                j += 1
+            r.append(len(v))
+        return cls((v, c, r, m))
+
     @property
     def n(self):
         return len(self.r) - 1
@@ -73,16 +86,7 @@ class Csr:
             start, end = self.r[i : i + 2]
             for vv, j in zip(self.v[start:end], self.c[start:end]):
                 qs.append((j, i, vv))
-        qs.sort()
-        v, c, r = [], [], [0]
-        j = 0
-        for i in range(self.m):
-            while j < len(qs) and qs[j][0] == i:
-                v.append(qs[j][2])
-                c.append(qs[j][1])
-                j += 1
-            r.append(len(v))
-        return Csr((v, c, r, self.n))
+        return self.from_clist(qs)
 
     def __str__(self):
         return str((self.v, self.c, self.r))
