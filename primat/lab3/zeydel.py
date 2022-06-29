@@ -8,7 +8,7 @@ def zeydel(a, b, eps):
     counter = 0
     n = a.n
     xp = None
-    x = b.copy()
+    x = np.array(b, copy=True, dtype=np.longdouble)
     while xp is None or norm_sq(x - xp) > eps**2:
         counter += 1
         xp = x.copy()
