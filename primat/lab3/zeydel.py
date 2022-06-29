@@ -19,9 +19,4 @@ def zeydel(a, b, eps):
                 if i != j:
                     x[i] -= v * x[j]
             x[i] /= a[i, i]
-    return x,counter
-
-
-a = Csr([[1, 2], [3, 4]])
-b = np.array([1, 1])
-print(zeydel(a, b, 1e-5))
+    return x, counter
