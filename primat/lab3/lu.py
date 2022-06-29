@@ -1,4 +1,4 @@
-from .csr import *
+from primat.lab3.csr import *
 
 
 def gen_l(a: Csr, n):
@@ -48,3 +48,19 @@ def solve(l, u, b):
     for i in range(n):
         x.append((y[n - i - 1] - sum(x[j] * u[n - j - 1, n - i - 1] for j in range(i))) / u[n - i - 1, n - i - 1])
     return x[::-1]
+
+
+def inv(a):
+    n = a.n
+    l, u = decomp(a)
+    v, c, r = [], [], [0]
+    for j in range(n):
+        x = [0] * n
+        x[j] = 1
+        col = solve(l, u, x)
+        for i, vv in enumerate(col):
+            if vv:
+                v.append(vv)
+                c.append(i)
+        r.append(len(v))
+    return Csr((v, c, r, n))
