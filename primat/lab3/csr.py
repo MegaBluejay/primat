@@ -5,7 +5,7 @@ from itertools import groupby
 class Csr:
     def __init__(self, m):
         if isinstance(m, Csr):
-            self.v, self.c, self.r, self.m = m.v, m.c, m.r, m.m
+            self.v, self.c, self.r, self.m = m.v.copy(), m.c.copy(), m.r.copy(), m.m
             return
         if isinstance(m, tuple):
             self.v, self.c, self.r, self.m = m
