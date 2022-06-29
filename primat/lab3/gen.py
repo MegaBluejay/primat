@@ -1,6 +1,6 @@
 from random import choices
 
-from csr import *
+from primat.lab3.csr import *
 
 
 def gilbert(n):
@@ -22,4 +22,4 @@ def qq(n, k):
             fv += w * (j + 1)
         f.append(fv)
         r.append(len(v))
-    return Csr((v, c, r)), f
+    return Csr((v, c, r, n)), f

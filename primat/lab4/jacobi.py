@@ -1,4 +1,4 @@
-from bisect import bisect_left
+from bisect import bisect_right, bisect_left
 from math import copysign, sqrt, inf
 
 from primat.lab3.csr import Csr
@@ -15,7 +15,7 @@ def non_diag(a):
 
 def next_jac(a):
     q = max(non_diag(a), key=lambda t: abs(t[1]))[0]
-    j, k = sorted([bisect_left(a.r, q), a.c[q]])
+    j, k = sorted([bisect_right(a.r, q) - 1, a.c[q]])
     if a[j, j] == a[k, k]:
         sin, cos = 1 / sqrt(2), 1 / sqrt(2)
     else:
@@ -81,3 +81,12 @@ def jacobi(a, eps):
     while abs(max(non_diag(a), key=lambda t: abs(t[1]))[1]) >= eps:
         a = next_jac(a)
     return [a[i, i] for i in range(a.n)]
+
+
+import numpy as np
+
+a = np.random.uniform(-10, 10, 25).reshape((5, 5))
+a = a @ a.T
+print(a)
+print(np.linalg.eig(a))
+print(jacobi(Csr(a), 1))

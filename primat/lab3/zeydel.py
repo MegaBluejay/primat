@@ -10,5 +10,5 @@ def zeydel(a, b, eps):
     while norm_sq(x - xp) > eps**2:
         xp = x.copy()
         for i in range(n):
-            x[i] = sum(-a[i, j] * x[j] / a[i, i] if i != j else 0 for j in range(n))
+            x[i] = (b[i] - sum(a[i, j] * x[j] if i != j else 0 for j in range(n))) / a[i, i]
     return x
