@@ -1,5 +1,5 @@
-from bisect import bisect_right, bisect_left
-from math import copysign, sqrt, inf, atan
+from bisect import bisect_right
+from math import sqrt, copysign, atan2, sin, cos
 
 from primat.lab3.csr import Csr
 
@@ -19,9 +19,9 @@ def next_jac(a):
     if a[j, j] == a[k, k]:
         s, c = 1 / sqrt(2), 1 / sqrt(2)
     else:
-        tau = (a[j, j] - a[k, k]) / (2 * a[j, k])
-        c = 1 / sqrt(1 + tau**2)
-        s = copysign(1 / (abs(tau) + sqrt(1 + tau**2)), tau) * c
+        tau = 2 * a[j, k] / (a[j, j] - a[k, k])
+        y = 1 / sqrt(1 + tau**2)
+        s, c = copysign(sqrt((1 - y) / 2), tau), sqrt((1 + y) / 2)
 
     b = Csr(([], [], [0], a.n))
     for i in range(a.n):
@@ -54,3 +54,10 @@ def jacobi(a, eps):
     while abs(max(non_diag(a), key=lambda t: abs(t[1]), default=(-1, 0))[1]) >= eps:
         a = next_jac(a)
     return [a[i, i] for i in range(a.n)]
+
+
+import numpy as np
+
+a = np.array([[4, -30, 60, -35], [-30, 300, -675, 420], [60, -675, 1620, -1050], [-35, 420, -1050, 700]])
+print(a)
+print(jacobi(Csr(a), 1e-4))
