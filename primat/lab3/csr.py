@@ -20,7 +20,8 @@ class Csr:
             self.r.append(len(self.v))
 
     @classmethod
-    def from_clist(cls, clist, n, m):
+    def from_clist(cls, clist, n, m=None):
+        m = m or n
         clist.sort()
         v, c, r = [], [], [0]
         j = 0
