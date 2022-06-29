@@ -6,9 +6,9 @@ from primat.lab3.csr import Csr
 
 def zeydel(a, b, eps):
     n = a.n
-    xp = np.zeros(b.shape)
+    xp = None
     x = b.copy()
-    while norm_sq(x - xp) > eps**2:
+    while xp is None or norm_sq(x - xp) > eps**2:
         xp = x.copy()
         for i in range(n):
             x[i] = b[i]
