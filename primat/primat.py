@@ -3,7 +3,7 @@ from functools import cache
 from math import *
 from collections import namedtuple
 
-from base import CountingFunc
+from primat.base import CountingFunc
 
 
 MinResult = namedtuple("MinResult", ["x", "dx", "calls", "steps"])

@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.optimize import minimize_scalar
 
-from grad import norm_sq
+import primat.lab2.grad
 
 
 def extra_grad(f, df, x, method, stop, maxi=None):
@@ -17,7 +17,7 @@ def extra_grad(f, df, x, method, stop, maxi=None):
             lam = minimize_scalar(lambda lam: f(x - lam * s), method=method).x
             px = x
             x = x - lam * s
-            omega = norm_sq(df(x)) / norm_sq(df(px))
+            omega = grad.norm_sq(df(x)) / grad.norm_sq(df(px))
             # omega = max(0, np.dot(df(x), df(x) - df(px)) / norm_sq(df(px)))
             s = df(x) - omega * s
             yield x

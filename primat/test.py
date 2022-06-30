@@ -1,5 +1,5 @@
 from primat import *
-from org_table import table
+from primat.org_table import table
 import pandas as pd
 
 f = lambda x: sin(x) - log(x**2) - 1
