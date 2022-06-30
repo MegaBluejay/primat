@@ -30,7 +30,7 @@ def decomp(a: Csr):
     for i in range(a.n):
         for j in range(i):
             k = bisect_left(rs[j], i)
-            if rs[j][k] == i:
+            if k<len(rs[j]) and rs[j][k] == i:
                 v.append(-vs[j][k])
                 c.append(j)
         v.append(1)
@@ -44,7 +44,7 @@ def solve(l, u, b):
     n = l.n
     y = []
     for i in range(n):
-        start, end = l.r[i : i + 2]
+        start, end = l.r[i: i + 2]
         yv = b[i]
         for v, j in zip(l.v[start:end], l.c[start:end]):
             if j >= i:
@@ -55,7 +55,7 @@ def solve(l, u, b):
     x = []
     for i in range(n):
         xv = y[n - i - 1]
-        start, end = u.r[n - i - 1 : n - i + 1]
+        start, end = u.r[n - i - 1: n - i + 1]
         for v, j in zip(u.v[start:end][::-1], u.c[start:end][::-1]):
             if n - j - 1 >= len(x):
                 break

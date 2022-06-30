@@ -36,7 +36,7 @@ class Csr:
     @property
     def n(self):
         return len(self.r) - 1
-
+    
     def get_row(self, i):
         start, end = self.r[i : i + 2]
         row = [0] * self.m
