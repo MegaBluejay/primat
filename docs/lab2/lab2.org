@@ -213,3 +213,11 @@ k=7.4301405355945205 steps=13
 k=2012487.2896767037 steps=1808
 k=18.55397531527947 steps=40
 #+end_example
+
+** Код
+
+#+attr_latex: :options frame=single
+#+include: "../../primat/lab2/grad.py" src python
+
+#+attr_latex: :options frame=single
+#+include: "../../primat/lab2/extra_grad.py" src python

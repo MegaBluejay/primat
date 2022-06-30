@@ -20,7 +20,7 @@
  [7 8 9]]
 #+end_example
 
- разложение вышло следующим:
+разложение вышло следующим:
  #+begin_example
     [[1. 0. 0.]
  L=  [2. 1. 0.]
@@ -119,3 +119,20 @@ k - параметр из функции, влияет на диагональн
 
 #+CAPTION: Средняя ошибка при решении методом Зейделя
 [[../../primat/lab3/pics/errorZeydel.png]]
+
+
+#+latex: \clearpage
+
+** Код
+
+#+attr_latex: :options frame=single
+#+include: "../../primat/lab3/csr.py" src python
+
+#+attr_latex: :options frame=single
+#+include: "../../primat/lab3/lu.py" src python
+
+#+attr_latex: :options frame=single
+#+include: "../../primat/lab3/zeydel.py" src python
+
+#+attr_latex: :options frame=single
+#+include: "../../primat/lab3/gen.py" src python
