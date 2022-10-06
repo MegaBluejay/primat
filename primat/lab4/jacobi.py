@@ -7,35 +7,38 @@ import numpy as np
 from primat.lab3.csr import Csr
 
 
-def rotate(a, p, j, k):
-    if isclose(a[j, j], a[k, k], rel_tol=1e-20):
-        s, c = [1 / sqrt(2)] * 2
-        tau = np.pi / 4
+def rotate(a, p, k, l):
+    n = len(a)
+    aDiff = a[l, l] - a[k, k]
+    if isclose(a[l, l], a[k, k], rel_tol=1e-36):
+        t = a[k, l] / aDiff
     else:
-        tau = (a[j, j] - a[k, k]) / (2 * a[j, k])
-        t = copysign(1, tau) / (abs(tau) + sqrt(1 + tau**2))
-        c = 1 / sqrt(1 + t**2)
-        s = c * t
-    new = np.copy(a)
-    new[j, j] = c**2 * a[j, j] - 2 * s * c * a[j, k] + s**2 * a[k, k]
-    new[k, k] = s**2 * a[j, j] + 2 * s * c * a[j, k] + c**2 * a[k, k]
-    new[j, k] = new[k, j] = (c**2 - s**2) * a[j, k] + s * c * (a[k, k] - a[j, j])
-    for m in range(a.shape[0]):
-        if m in [j, k]:
-            continue
-        new[j, m] = new[m, j] = c * a[j, m] - s * a[k, m]
-        new[k, m] = new[m, k] = s * a[j, m] + c * a[k, m]
-    for i in range(a.shape[0]):  # Update transformation matrix
-        temp = p[i, j]
-        p[i, j] = temp - s * (p[i, k] + tau * p[i, j])
-        p[i, k] = p[i, k] + s * (temp - tau * p[i, k])
-    return new, p
-
-
-# def jacobi(a, eps):
-#     while abs(max(non_diag(a), key=lambda t: abs(t[1]), default=(-1, 0))[1]) >= eps:
-#         a = rotate(a)
-#     return [a[i, i] for i in range(a.n)]
+        phi = aDiff / (2 * a[k, l])
+        t = copysign(1, phi) / (abs(phi) + sqrt(phi**2 + 1))
+    c = 1 / sqrt(t**2 + 1)
+    s = t * c
+    tau = s / (1 + c)
+    temp = a[k, l]
+    a[k, l] = 0.0
+    a[k, k] = a[k, k] - t * temp
+    a[l, l] = a[l, l] + t * temp
+    for i in range(k):  # Case of i < k
+        temp = a[i, k]
+        a[i, k] = temp - s * (a[i, l] + tau * temp)
+        a[i, l] = a[i, l] + s * (temp - tau * a[i, l])
+    for i in range(k + 1, l):  # Case of k < i < l
+        temp = a[k, i]
+        a[k, i] = temp - s * (a[i, l] + tau * a[k, i])
+        a[i, l] = a[i, l] + s * (temp - tau * a[i, l])
+    for i in range(l + 1, n):  # Case of i > l
+        temp = a[k, i]
+        a[k, i] = temp - s * (a[l, i] + tau * temp)
+        a[l, i] = a[l, i] + s * (temp - tau * a[l, i])
+    for i in range(n):  # Update transformation matrix
+        temp = p[i, k]
+        p[i, k] = temp - s * (p[i, l] + tau * p[i, k])
+        p[i, l] = p[i, l] + s * (temp - tau * p[i, l])
+    return a, p
 
 
 def jacobi(a, eps):
@@ -43,7 +46,6 @@ def jacobi(a, eps):
     p = np.eye(a.shape[0], dtype=float)
     while abs(a[q := np.unravel_index(np.argmax(np.abs(np.where(mask, a, 0))), a.shape)]) >= eps:
         a, p = rotate(a, p, *q)
-    print(a)
     return a.diagonal(), p
 
 
