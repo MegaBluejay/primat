@@ -36,7 +36,7 @@ class Csr:
     @property
     def n(self):
         return len(self.r) - 1
-    
+
     def get_row(self, i):
         start, end = self.r[i : i + 2]
         row = [0] * self.m
@@ -47,7 +47,7 @@ class Csr:
     def get_item(self, i, j):
         start, end = self.r[i : i + 2]
         q = bisect_left(self.c, j, start, end)
-        if q < len(self.c) and self.c[q] == j:
+        if q < end and self.c[q] == j:
             return self.v[q]
         return 0
 
