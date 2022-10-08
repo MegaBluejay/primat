@@ -4,7 +4,7 @@ from .jacobi import *
 from ..lab3.gen import gilbert
 
 
-def test_dense(a, res):
+def test_dense_correct(a, res):
     if isinstance(a, Csr):
         a = np.array(a.to_mat())
     vecs = np.array(res.vecs.to_mat())
@@ -21,12 +21,10 @@ def small_test(eps=1e-9):
         ],
         dtype=float,
     )
-    return test_dense(a, jacobi(Csr(a), eps))
+    return test_dense_correct(a, jacobi(Csr(a), eps=eps))
 
 
-def gilbert_test(n, eps=1e-9, do_dense=False):
+def gilbert_test_correct(n, eps=1e-9):
     a = gilbert(n)[0]
-    res = jacobi(a, eps)
-    if do_dense:
-        assert test_dense(a, res)
-    return res.its
+    res = jacobi(a, eps=eps)
+    return test_dense_correct(a, res)

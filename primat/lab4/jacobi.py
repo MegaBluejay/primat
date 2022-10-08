@@ -72,10 +72,13 @@ def top_tri(a):
             yield i, a.c[j], a.v[j]
 
 
-def jacobi(a, eps):
+def jacobi(a, eps=None, maxit=None):
     p = Csr(([1] * a.n, list(range(a.n)), list(range(a.n + 1)), a.n))
     i = 0
-    while abs((q := max(top_tri(a), key=lambda w: abs(w[2])))[2]) >= eps:
+    while True:
+        q = max(top_tri(a), key=lambda w: abs(w[2]))
+        if (eps is not None and abs(q[2]) < eps) or (maxit is not None and i == maxit):
+            break
         a, p = rotate(a, p, *q[:2])
         i += 1
     return JacobiResult([a[i, i] for i in range(a.n)], p, i)
