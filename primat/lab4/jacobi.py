@@ -1,9 +1,8 @@
+from bisect import bisect_left
 from itertools import chain, groupby
 from math import sqrt, copysign, isclose
 from operator import itemgetter as ig
-from bisect import bisect_left
 
-import numpy as np
 from toolz import merge_sorted
 
 from primat.lab3.csr import Csr
@@ -74,18 +73,3 @@ def jacobi(a, eps):
     while abs((q := max(top_tri(a), key=lambda w: abs(w[2])))[2]) >= eps:
         a, p = rotate(a, p, *q[:2])
     return [a[i, i] for i in range(a.n)], p
-
-
-a = np.array(
-    [
-        [4, -30, 60, -35],
-        [-30, 300, -675, 420],
-        [60, -675, 1620, -1050],
-        [-35, 420, -1050, 700],
-    ],
-    dtype=float,
-)
-print(a)
-vals, vecs = jacobi(Csr(a), 1e-9)
-vecs = np.array(vecs.to_mat())
-print(a @ vecs[:, 0], vecs[:, 0] * vals[0])
