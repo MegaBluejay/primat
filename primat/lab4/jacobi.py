@@ -30,8 +30,8 @@ def compile_mods(*mods):
 
 
 def rotate(a, p, k, l):
-    if isclose(a[l, l], a[k, k], rel_tol=1e-36):
-        t = a[k, l] / (a[l, l] - a[k, k])
+    if isclose(a[l, l], a[k, k]):
+        t = 1
     else:
         phi = (a[l, l] - a[k, k]) / (2 * a[k, l])
         t = copysign(1, phi) / (abs(phi) + sqrt(phi**2 + 1))
