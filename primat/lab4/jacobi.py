@@ -64,21 +64,30 @@ def rotate(a, p, k, l):
     return new_a, new_p
 
 
+def row(a, i):
+    start, end = a.r[i : i + 2]
+    start = bisect_left(a.c, i + 1, start, end)
+    for j in range(start, end):
+        yield i, a.c[j], a.v[j]
+
+
 def top_tri(a):
     for i in range(a.n):
-        start, end = a.r[i : i + 2]
-        start = bisect_left(a.c, i + 1, start, end)
-        for j in range(start, end):
-            yield i, a.c[j], a.v[j]
+        yield from row(a, i)
 
 
-def jacobi(a, eps=None, maxit=None):
+def jacobi(a, eps=None, maxit=None, cyclic=None):
     p = Csr(([1] * a.n, list(range(a.n)), list(range(a.n + 1)), a.n))
     i = 0
     while True:
-        q = max(top_tri(a), key=lambda w: abs(w[2]))
-        if (eps is not None and abs(q[2]) < eps) or (maxit is not None and i == maxit):
+        if maxit is not None and i == maxit:
             break
+        if not cyclic or i % (a.n - 1) == 0:
+            q = max(top_tri(a), key=lambda w: abs(w[2]))
+            if eps is not None and abs(q[2]) < eps:
+                break
+        if cyclic:
+            q = max(row(a, i % (a.n - 1)), key=lambda w: abs(w[2]))
         a, p = rotate(a, p, *q[:2])
         i += 1
     return JacobiResult([a[i, i] for i in range(a.n)], p, i)

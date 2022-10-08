@@ -4,8 +4,8 @@ from .jacobi import *
 from ..lab3.gen import gilbert, qq
 
 
-def test(a, eps, maxit=None):
-    res = jacobi(Csr(a), eps, maxit)
+def test(a, eps, maxit=None, cyclic=None):
+    res = jacobi(Csr(a), eps, maxit, cyclic)
     if isinstance(a, Csr):
         a = np.array(a.to_mat())
     vecs = np.array(res.vecs.to_mat())
@@ -28,11 +28,11 @@ def small_test(eps=1e-9):
     test(a, eps)
 
 
-def gilbert_test(n, eps=None, maxit=None):
-    return test(gilbert(n)[0], eps, maxit)
+def gilbert_test(n, eps=None, maxit=None, cyclic=None):
+    return test(gilbert(n)[0], eps, maxit, cyclic)
 
 
-def qq_test(n, k, eps=None, maxit=None):
+def qq_test(n, k, eps=None, maxit=None, cyclic=None):
     a = np.array(qq(n, k)[0].to_mat())
     a += a.T
-    return test(a, eps, maxit)
+    return test(a, eps, maxit, cyclic)
