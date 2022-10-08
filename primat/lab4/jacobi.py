@@ -2,10 +2,14 @@ from bisect import bisect_left
 from itertools import chain, groupby
 from math import sqrt, copysign, isclose
 from operator import itemgetter as ig
+from collections import namedtuple
 
 from toolz import merge_sorted
 
 from primat.lab3.csr import Csr
+
+
+JacobiResult = namedtuple("JacobiResult", ["vals", "vecs", "its"])
 
 
 def mod_row(a, ri, new_a, mods):
@@ -70,6 +74,8 @@ def top_tri(a):
 
 def jacobi(a, eps):
     p = Csr(([1] * a.n, list(range(a.n)), list(range(a.n + 1)), a.n))
+    i = 0
     while abs((q := max(top_tri(a), key=lambda w: abs(w[2])))[2]) >= eps:
         a, p = rotate(a, p, *q[:2])
-    return [a[i, i] for i in range(a.n)], p
+        i += 1
+    return JacobiResult([a[i, i] for i in range(a.n)], p, i)
